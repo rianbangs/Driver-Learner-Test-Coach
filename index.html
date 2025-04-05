@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Learner Test Coach</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f2f2f2;
+    }
+    #quiz-container {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    #question-text {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .option {
+      background: #e0e0e0;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .option:hover {
+      background: #d5d5d5;
+    }
+    .selected {
+      background: #90caf9;
+    }
+    #next-btn {
+      margin-top: 20px;
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+    #score-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 18px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    #message-container {
+      font-size: 16px;
+      padding: 10px;
+      margin-top: 20px;
+      text-align: center;
+      border-radius: 5px;
+    }
+    .correct {
+      background-color: #4caf50;
+      color: white;
+      
+    }
+    .wrong {
+      background-color: #f44336;
+      color: white;
+    }
+    .emtpyBadge {
+      background-color: #fdfbfb;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div id="score-container">Score: 0</div>
+  <div id="quiz-container">
+    <h2 id="question-text">Loading question...</h2>
+    <div id="options-container"></div>
+    <button id="next-btn">Next</button>
+    <div id="message-container"></div>
+  </div>
+
+  <script>
+    let currentQuestion = 0;
+    let score = 0;
+    let selectedOption = null;
+
+    // Questions embedded directly in the JavaScript
+    const questions = [
+      {
+        "question": "Unless otherwise posted, what is the basic speed limit outside a city, town or village on a primary highway?",
+        "options": ["100 km/h", "90 km/h", "110 km/h", "80 km/h"],
+        "answer": "100 km/h"
+      },
+      {
+        "question": "When backing a passenger vehicle to the left, a driver should:",
+        "options": [
+          "Look in the inside rear-view mirror and make steering adjustments as necessary",
+          "Look over the right shoulder with occasional glances to the front",
+          "Look over the left shoulder with occasional glances to the front",
+          "Without shoulder checking, use the inside and outside rear-view mirrors to ensure the best view"
+        ],
+        "answer": "Look over the left shoulder with occasional glances to the front"
+      },
+      {
+        "question": "When approaching an intersection and facing a traffic control light that is showing a green right-turn arrow and a red light, a driver:",
+        "options": [
+          "Must stop and wait for a green light before turning in the direction of the arrow",
+          "May go straight through the intersection without stopping",
+          "May proceed when safe, without stopping, in the direction of the arrow",
+          "May turn left without stopping"
+        ],
+        "answer": "May proceed when safe, without stopping, in the direction of the arrow"
+      },
+      {
+        "question": "Alberta has a demerit point system where a fully licenced (non-learner, non-probationary) driver is suspended when they accumulate:",
+        "options": ["15 points", "8 points", "5 points", "12 points"],
+        "answer": "15 points"
+      },
+      {
+        "question": "When passing a large truck on a two-way highway, a driver should:",
+        "options": [
+          "Leave extra room before returning to their lane",
+          "Return to their lane when signalled by the truck’s headlights",
+          "Return to their lane when the truck is no longer visible in any of their rear-view mirrors",
+          "Return to their lane once they have cleared the truck’s front bumper"
+        ],
+        "answer": "Return to their lane when the truck is no longer visible in any of their rear-view mirrors"
+      }
+      // Add more questions here as needed
+    ];
+
+    loadScore();
+    function loadScore() {
+      const scoreContainer = document.getElementById('score-container');
+      scoreContainer.textContent = `Score: ${score}/${questions.length}`;
+    }
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById('question-text').textContent = q.question;
+
+      const optionsContainer = document.getElementById('options-container');
+      optionsContainer.innerHTML = '';
+      selectedOption = null;
+      document.getElementById('message-container').textContent = ''; // Clear previous message
+      document.getElementById('message-container').className = 'emtpyBadge'; // Reset class for message container
+
+      q.options.forEach(option => {
+        const div = document.createElement('div');
+        div.textContent = option;
+        div.classList.add('option');
+        div.addEventListener('click', () => {
+          if (selectedOption) return; // Prevent selecting more than one option
+
+          // Mark the selected option
+          document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedOption = option;
+
+          const correctAnswer = questions[currentQuestion].answer;
+
+          // Display the message inside the message-container
+          const messageContainer = document.getElementById('message-container');
+          if (selectedOption === correctAnswer) {
+            messageContainer.textContent = 'Correct answer!';
+            messageContainer.className = 'correct';
+            score++;
+          } else {
+            messageContainer.textContent = `Wrong answer! The correct answer was: ${correctAnswer}`;
+            messageContainer.className = 'wrong';
+            
+            // Highlight the correct answer with green
+            document.querySelectorAll('.option').forEach(option => {
+              if (option.textContent === correctAnswer) {
+                option.style.backgroundColor = "green"; // Green for correct answer
+              }
+            });
+          }
+
+          // Update the score display
+          loadScore();
+        });
+
+        optionsContainer.appendChild(div);
+      });
+    }
+
+    // Next Button Functionality
+    document.getElementById('next-btn').addEventListener('click', () => {
+      if (!selectedOption) {
+        alert('Please select an answer.');
+        return;
+      }
+
+      // Proceed to the next question
+      currentQuestion++;
+
+      if (currentQuestion < questions.length) {
+        showQuestion();
+      } else {
+        document.getElementById('quiz-container').innerHTML =
+          `<h2>Quiz Complete!</h2><p>Your final score is: ${score}/${questions.length}</p>
+          <button id="restart-btn">Restart</button>`;
+          
+        // Add event listener to the restart button
+        document.getElementById('restart-btn').addEventListener('click', restartQuiz);
+      }
+    });
+
+    function restartQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      loadScore();
+      document.getElementById('message-container').textContent = ''; // Clear the message
+      showQuestion();
+    }
+
+    // Initial call to load the first question
+    showQuestion();
+  </script>
+</body>
+</html>
